@@ -9,7 +9,8 @@ from .constants import (ERR_COMPLEX_ASSIGN, ERR_COMPLEX_VALUE, ERR_UNSUPPORTED_O
                         MAX_INSTRUCTIONS)
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Any
+from typing import Any
+from collections.abc import Callable
 from string import hexdigits
 import ast
 import inspect
