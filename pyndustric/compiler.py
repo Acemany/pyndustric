@@ -174,11 +174,11 @@ class Compiler(ast.NodeVisitor):
             code = textwrap.dedent(inspect.getsource(code))
             # i.e. `tree.body_of_tree[def].body_of_function`
             body = _parse_code(code).body[0].body
-            if all((
-                isinstance(body[0], ast.Expr),
-                isinstance(body[0].value, ast.Constant),
-                isinstance(body[0].value.value, str),
-            )):
+            if (
+                isinstance(body[0], ast.Expr)
+                and isinstance(body[0].value, ast.Constant)
+                and isinstance(body[0].value.value, str)
+            ):
                 # Skip doc-string
                 body = body[1:]
         elif isinstance(code, str):
@@ -389,11 +389,11 @@ class Compiler(ast.NodeVisitor):
         inject: list[_Instruction] = []
         backwards = False
 
-        if all((
-            isinstance(call.func, ast.Attribute),
-            call.func.value.id == "Env",
-            call.func.attr == "links",
-        )):
+        if (
+            isinstance(call.func, ast.Attribute)
+            and call.func.value.id == "Env"
+            and call.func.attr == "links"
+        ):
             it = REG_IT_FMT.format(call.lineno, call.col_offset)
             start, end, step = 0, "@links", 1
             inject.append(_Instruction(f"getlink {target.id} {it}"))
@@ -531,11 +531,11 @@ class Compiler(ast.NodeVisitor):
                 return self.emit_sleep_syscall(call)
             else:
                 return self.as_value(call)
-        if not any((
-            isinstance(call.func, ast.Attribute),
-            isinstance(call.func.value, ast.Name),
-            isinstance(call.func.value, ast.Attribute),
-        )):
+        if not (
+            isinstance(call.func, ast.Attribute)
+            or isinstance(call.func.value, ast.Name)
+            or isinstance(call.func.value, ast.Attribute)
+        ):
             raise CompilerError(ERR_UNSUPPORTED_EXPR, node)
 
         if isinstance(call.func.value, ast.Attribute):
@@ -545,16 +545,16 @@ class Compiler(ast.NodeVisitor):
             else:
                 raise CompilerError(ERR_UNSUPPORTED_SYSCALL, node)
         # x[]
-        if all((
+        if (
             # x[]
-            isinstance(call.func.value, ast.Subscript),
+            isinstance(call.func.value, ast.Subscript)
             # x[][]
-            isinstance(call.func.value.value, ast.Subscript),
+            and isinstance(call.func.value.value, ast.Subscript)
             # x[][]. < note the dot
-            isinstance(call.func.value.value.value, ast.Attribute),
+            and isinstance(call.func.value.value.value, ast.Attribute)
             # x[][].obj
-            isinstance(call.func.value.value.value.value, ast.Name),
-        )):
+            and isinstance(call.func.value.value.value.value, ast.Name)
+        ):
             ns: str = call.func.value.value.value.value.id + "." + call.func.value.value.value.attr
             if ns == "World.blocks":
                 y = self.as_value(call.func.value.slice)
@@ -989,11 +989,11 @@ class Compiler(ast.NodeVisitor):
             hits_air = hits_ground = True
             piercing = False
             for kw in node.keywords:
-                if not all((
-                    isinstance(kw.value, ast.Constant),
-                    kw.value.value in (False, True),
-                    kw.arg in ["hits_air", "hits_ground", "piercing"],
-                )):
+                if not (
+                    isinstance(kw.value, ast.Constant)
+                    and kw.value.value in (False, True)
+                    and kw.arg in ["hits_air", "hits_ground", "piercing"]
+                ):
                     raise CompilerError(ERR_BAD_SYSCALL_ARGS, node)
                 exec(f"{kw.arg} = {kw.value.value}")
 
@@ -1368,14 +1368,14 @@ class Compiler(ast.NodeVisitor):
                     return output
             else:
                 raise CompilerError(ERR_UNSUPPORTED_SYSCALL, node)
-        elif all((
+        elif (
             # see visit_Expr for comments
-            isinstance(node, ast.Call),
-            isinstance(node.func.value, ast.Subscript),
-            isinstance(node.func.value.value, ast.Subscript),
-            isinstance(node.func.value.value.value, ast.Attribute),
-            isinstance(node.func.value.value.value.value, ast.Name),
-        )):
+            isinstance(node, ast.Call)
+            and isinstance(node.func.value, ast.Subscript)
+            and isinstance(node.func.value.value, ast.Subscript)
+            and isinstance(node.func.value.value.value, ast.Attribute)
+            and isinstance(node.func.value.value.value.value, ast.Name)
+        ):
             ns = node.func.value.value.value.value.id + "." + node.func.value.value.value.attr
             if ns == "World.blocks":
                 y = self.as_value(node.func.value.slice)
