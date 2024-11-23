@@ -16,11 +16,11 @@ constants in the [`constants.py`] file.
 To install pyndustric as module run:
 
 ```sh
-$ pip install https://github.com/Lonami/pyndustric/archive/refs/heads/master.zip
+$ pip install https://github.com/Acemany/pyndustric/archive/refs/heads/master.zip
 ```
 
 Alternatively, you can run it as module without installation by placing your program file at the root of the project directory.
-(You can get the source via download button or: `git clone https://github.com/Lonami/pyndustric.git`)
+(You can get the source via download button or: `git clone https://github.com/Acemany/pyndustric.git`)
 
 
 To compile your program, run the [`pyndustric`] module and pass the files to compile as input arguments.
