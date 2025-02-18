@@ -6,6 +6,7 @@ __all__ = ["ERR_COMPLEX_ASSIGN", "ERR_COMPLEX_VALUE", "ERR_UNSUPPORTED_OP", "ERR
            "ERR_NO_DEF", "ERR_ARGC_MISMATCH", "ERR_TOO_LONG", "ERR_INVALID_SOURCE", "ERR_BAD_TUPLE_ASSIGN", "INTERNAL_COMPILER_ERR",
            "ERROR_DESCRIPTIONS",
            "BIN_CMP", "NEGATED_BIN_CMP", "BIN_OPS", "BUILTIN_DEFS", "RADAR_ORDERS", "ENV_MAP", "RES_MAP",
+           "ALLOWED_DECORATORS",
            "REG_STACK", "REG_RET", "REG_RET_COUNTER_PREFIX", "REG_IT_FMT", "REG_TMP_FMT",
            "MAX_INSTRUCTIONS"]
 
@@ -51,7 +52,7 @@ ERROR_DESCRIPTIONS = {
     INTERNAL_COMPILER_ERR: "internal compiler error",
 }
 
-BIN_CMP = {
+BIN_CMP: dict[type[ast.cmpop | ast.boolop], str] = {
     ast.Eq: "equal",
     ast.NotEq: "notEqual",
     ast.And: "and",
@@ -73,7 +74,7 @@ NEGATED_BIN_CMP = {
     "or": "nor",
 }
 
-BIN_OPS = {
+BIN_OPS: dict[type[ast.operator], str] = {
     ast.Add: "add",
     ast.Sub: "sub",
     ast.Mult: "mul",

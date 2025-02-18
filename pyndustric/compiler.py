@@ -1,12 +1,3 @@
-from re import sub
-
-from .constants import (ERR_COMPLEX_ASSIGN, ERR_COMPLEX_VALUE, ERR_UNSUPPORTED_OP, ERR_UNSUPPORTED_ITER, ERR_BAD_ITER_ARGS, ERR_UNSUPPORTED_IMPORT,
-                        ERR_UNSUPPORTED_EXPR, ERR_UNSUPPORTED_SYSCALL, ERR_BAD_SYSCALL_ARGS, ERR_NESTED_DEF, ERR_INVALID_DEF, ERR_REDEF,
-                        ERR_NO_DEF, ERR_ARGC_MISMATCH, ERR_TOO_LONG, ERR_INVALID_SOURCE, ERR_BAD_TUPLE_ASSIGN, INTERNAL_COMPILER_ERR,
-                        ERROR_DESCRIPTIONS,
-                        BIN_CMP, NEGATED_BIN_CMP, BIN_OPS, BUILTIN_DEFS, RADAR_ORDERS, ENV_MAP, RES_MAP,
-                        REG_STACK, REG_RET, REG_RET_COUNTER_PREFIX, REG_IT_FMT, REG_TMP_FMT,
-                        MAX_INSTRUCTIONS)
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -16,6 +7,15 @@ import ast
 import inspect
 import sys
 import textwrap
+
+from .constants import (ERR_COMPLEX_ASSIGN, ERR_COMPLEX_VALUE, ERR_UNSUPPORTED_OP, ERR_UNSUPPORTED_ITER, ERR_BAD_ITER_ARGS, ERR_UNSUPPORTED_IMPORT,
+                        ERR_UNSUPPORTED_EXPR, ERR_UNSUPPORTED_SYSCALL, ERR_BAD_SYSCALL_ARGS, ERR_NESTED_DEF, ERR_INVALID_DEF, ERR_REDEF,
+                        ERR_NO_DEF, ERR_ARGC_MISMATCH, ERR_TOO_LONG, ERR_INVALID_SOURCE, ERR_BAD_TUPLE_ASSIGN, INTERNAL_COMPILER_ERR,
+                        ERROR_DESCRIPTIONS,
+                        BIN_CMP, NEGATED_BIN_CMP, BIN_OPS, BUILTIN_DEFS, RADAR_ORDERS, ENV_MAP, RES_MAP,
+                        ALLOWED_DECORATORS,
+                        REG_STACK, REG_RET, REG_RET_COUNTER_PREFIX, REG_IT_FMT, REG_TMP_FMT,
+                        MAX_INSTRUCTIONS)
 
 
 __all__ = ["Compiler"]
@@ -58,7 +58,7 @@ class _Jump(_Instruction):
     Represents a jump instruction towards a specific label.
     """
 
-    def __init__(self, label: _Label, condition: str):
+    def __init__(self, label: _Label | None, condition: str):
         super().__init__(f"jump {{}} {condition}")
         self._label = label
 
@@ -288,10 +288,10 @@ class Compiler(ast.NodeVisitor):
         else:
             left, cmp, right = self.as_value(test), "notEqual", 0
 
-        if not jump_if_test:
-            cmp = NEGATED_BIN_CMP.get(cmp)
         if cmp is None:
             raise CompilerError(ERR_UNSUPPORTED_OP, test, op=cmp)
+        if not jump_if_test:
+            cmp = NEGATED_BIN_CMP.get(cmp)
 
         if cmp == "and":
             failed_label = _Label()
@@ -544,7 +544,7 @@ class Compiler(ast.NodeVisitor):
                 return self.emit_world_syscall_block_standalone(call)
             else:
                 raise CompilerError(ERR_UNSUPPORTED_SYSCALL, node)
-        # x[]
+
         if (
             # x[]
             isinstance(call.func.value, ast.Subscript)
@@ -1075,12 +1075,15 @@ class Compiler(ast.NodeVisitor):
 
         return True
 
-    def emit_tuple_syscall(self, node: ast.Call, outputs: list[str]):
+    def emit_tuple_syscall(self, node: ast.Call, outputs: list[str]) -> None:
         # All of them currently are of the form Sys.call()
         if not isinstance(node.func, ast.Attribute):
             raise CompilerError(ERR_UNSUPPORTED_SYSCALL, node)
 
-        if node.func.value.id == "Unit" and node.func.attr == "locate":
+        link = node.func.value.id
+        method = node.func.attr
+
+        if link == "Unit" and method == "locate":
             if len(outputs) not in (1, 2, 3, 4):
                 raise CompilerError(ERR_BAD_TUPLE_ASSIGN, node)
 
@@ -1115,7 +1118,7 @@ class Compiler(ast.NodeVisitor):
             else:
                 raise CompilerError(ERR_BAD_SYSCALL_ARGS, node)
 
-        elif node.func.value.id == "Unit" and node.func.attr == "get_block":
+        elif link == "Unit" and method == "get_block":
             if len(node.args) != 2:
                 raise CompilerError(ERR_BAD_SYSCALL_ARGS, node)
             if len(outputs) not in (1, 2):
@@ -1126,17 +1129,14 @@ class Compiler(ast.NodeVisitor):
             else:
                 output = " ".join(outputs[::-1])
             self.ins_append(f"ucontrol getBlock {x} {y} {output} 0")
-        else:
-            raise CompilerError(ERR_UNSUPPORTED_SYSCALL, node)
 
-        link = node.func.value.id
-        method = node.func.attr
-        if method == "enabled":
+        elif method == "enabled":
             if len(node.args) != 1:
                 raise CompilerError(ERR_BAD_SYSCALL_ARGS, node)
 
             enabled = self.as_value(node.args[0])
             self.ins_append(f"control enabled {link} {enabled}")
+
         elif method == "shoot":
             if len(node.args) == 2:
                 x, y, enabled = *map(self.as_value, node.args), 1
@@ -1146,17 +1146,17 @@ class Compiler(ast.NodeVisitor):
                 raise CompilerError(ERR_BAD_SYSCALL_ARGS, node)
 
             self.ins_append(f"control shoot {link} {x} {y} {enabled}")
+
         elif method == "ceasefire":
             if len(node.args) != 0:
                 raise CompilerError(ERR_BAD_SYSCALL_ARGS, node)
 
             self.ins_append(f"control shoot {link} 0 0 0")
+
         else:
-            return False
+            raise CompilerError(ERR_UNSUPPORTED_SYSCALL, node)
 
-        return True
-
-    def as_value(self, node: ast.expr, output: str | None = None) -> str:
+    def as_value(self, node: ast.expr | None, output: str | None = None) -> str:
         """
         Returns the string representing either a value (like a number) or a variable.
 
@@ -1410,8 +1410,7 @@ class Compiler(ast.NodeVisitor):
                 x, y, r = map(self.as_value, node.args)
                 self.ins_append(f"ucontrol within {x} {y} {r} {output} 0")
                 return output
-            else:
-                raise CompilerError(ERR_UNSUPPORTED_SYSCALL, node)
+            raise CompilerError(ERR_UNSUPPORTED_SYSCALL, node)
 
         raise CompilerError(ERR_UNSUPPORTED_EXPR, node)
 
@@ -1437,5 +1436,5 @@ class Compiler(ast.NodeVisitor):
         return output
 
 
-def plural(n: int):
-    "s" if n != 1 else ""
+def plural(n: int) -> str:
+    return "s" if n != 1 else ""
