@@ -1,14 +1,17 @@
 from abc import ABC
 from typing import Iterator, TypeVar, Callable
 
+
 class Link:
     """Represents a link."""
 
-    def __getitem__(self, n) -> Building | None:
+    def __getitem__(self, n: int) -> "Building" | None:
         """Gets the nth link"""
+
 
 class Content:
     """A fundemental resource identifier"""
+
 
 class Env:
     """
@@ -50,7 +53,7 @@ class Env:
     null: None
 
     @property
-    def this(self) -> Building:
+    def this(self) -> "Building":
         """Return the `Building` object representing this logic processor."""
     @property
     def x(self) -> int:
@@ -84,13 +87,14 @@ class Env:
     def ips(self) -> float:
         # https://github.com/Anuken/Mindustry/blob/b7f030eb1342fc4fd7c46274bfa9ed7af25f5829/core/src/mindustry/world/blocks/logic/LogicBlock.java#L128
         """Return the amount of instructions per second this processor is capable of executing."""
-    def __getattr__(self, name) -> Content:
+    def __getattr__(self, name: str) -> Content:
         """
         Return an arbitrary `@variable`.
 
         For example, `Env.titanium` can be used to refer to Mindustry's `@titanium`.
         Underscores become dashes (e.g. `Env.titanium_conveyor` becomes `@titanium-conveyor`).
         """
+
 
 class World:
     """
@@ -104,75 +108,95 @@ class World:
             Get the block count of type type (eg "Env.conveyor").
             Type can also be "core"
             """
+
         @staticmethod
         def index(type: str, team: str, index: int) -> Content:
             """
             Get the block of type type (eg "Env.conveyor") at index index.
             Type can also be "core"
             """
+
         @staticmethod
-        def set(ore: str, floor: str, block: str, block_team: str, block_rotation: int = 0):
+        def set(ore: str, floor: str, block: str, block_team: str, block_rotation: int = 0) -> None:
             """
             Sets the block.
             Usage: World.blocks[x][y].set(ore=Env.titanium_ore)
             """
+
         @staticmethod
-        def get_block() -> Senseable:
+        def get_block() -> "Senseable":
             """Get block. Usage: block = World.blocks[x][y].get_block()"""
+
         @staticmethod
-        def get_build() -> Senseable:  # tbh not sure what the difference between a block and a building is
+        def get_build() -> "Senseable":  # tbh not sure what the difference between a block and a building is
             """Get building. Usage: build = World.blocks[x][y].get_build()"""
+
         @staticmethod
         def get_ore() -> Content:
             """Get ore. Usage: ore = World.blocks[x][y].get_ore()"""
+
         @staticmethod
         def get_floor() -> Content:
             """Get floor. Usage: floor = World.blocks[x][y].get_floor()"""
+
     @staticmethod
-    def fetch_player(team: str, index: int):
+    def fetch_player(team: str, index: int) -> "Unit":
         """Fetches the player at a certain index."""
+
     @staticmethod
-    def fetch_unit(team: str, index: int):
+    def fetch_unit(team: str, index: int) -> "Unit":
         """Fetches the unit at a certain index."""
+
     @staticmethod
     def unit_count(team: str) -> int:  # could change this to Teams.sharded.units() hmm
         """Get the unit (all types) count of a team."""
+
     @staticmethod
     def player_count(team: str) -> int:
         """Get the player count of a team."""
+
     @staticmethod
-    def spawn_unit(type: str, x: int, y: int, team: str, rot: int):
+    def spawn_unit(type: str, x: int, y: int, team: str, rot: int) -> None:
         """Spawns a unit at (x, y), then returns it."""
+
     @staticmethod
-    def spawn_natural_wave():
+    def spawn_natural_wave() -> None:
         """Spawns the next wave set by the map at a spawn point i think????"""
+
     @staticmethod
-    def spawn_wave(x: int, y: int):
+    def spawn_wave(x: int, y: int) -> None:
         """Spawns the next wave set by the map at (x, y) (?)"""
+
     @staticmethod
-    def apply_status(unit: Unit, status: str, length: float):
+    def apply_status(unit: "Unit", status: str, length: float) -> None:
         """Applys a status to a unit for a certain length"""
+
     @staticmethod
-    def clear_status(unit: Unit, status: str):
+    def clear_status(unit: "Unit", status: str) -> None:
         """Clear status from unit"""
+
     @staticmethod
-    def set_rate(ipt: int):
+    def set_rate(ipt: int) -> None:
         """Sets the instructions per tick for this processor (note, uses ticks instead of seconds (1 tick = 1/60))"""
+
     @staticmethod
-    def camera_pan(x: int, y: int, speed: float):
+    def camera_pan(x: int, y: int, speed: float) -> None:
         """
         Pan the player camera
         """
+
     @staticmethod
-    def camera_zoom(level: float):
+    def camera_zoom(level: float) -> None:
         """
         Zoom the player camera
         """
+
     @staticmethod
-    def camera_stop():
+    def camera_stop() -> None:
         """
         Stops any camera efects
         """
+
     @staticmethod
     def create_explosion(
         team: str,
@@ -183,24 +207,27 @@ class World:
         hits_air: bool = True,
         hits_ground: bool = True,
         piercing: bool = False,
-    ):
+    ) -> None:
         """
         Cause a explosion. hits_air, hits_ground and piercing are kwargs.
         """
+
     @staticmethod
-    def set_flag(ident: str):
+    def set_flag(ident: str) -> None:
         """Sets a flag that is globally acessible (via get_flag) from all world processors"""
+
     @staticmethod
-    def unset_flag(ident: str):
+    def unset_flag(ident: str) -> None:
         """Unsets a flag previously set by set_flag"""
+
     @staticmethod
     def get_flag(ident: str) -> bool:
         """Checks if a flag is set (set flag via set_flag)"""
 
-Env = Env()
 
 # https://github.com/Anuken/Mindustry/blob/e714d44/core/assets/bundles/bundle.properties#L979-L998
 # https://github.com/Anuken/Mindustry/blob/8bc349b/core/src/mindustry/logic/LAccess.java#L6-L47
+
 
 class Senseable(ABC):
     """
@@ -409,8 +436,9 @@ class Senseable(ABC):
     def enabled(self) -> bool:
         """Is this link enabled?"""
     @property
-    def color(self):
+    def color(self) -> str:
         """Illuminator color."""
+
 
 class Controllable(ABC):
     """
@@ -418,26 +446,37 @@ class Controllable(ABC):
     """
 
     @staticmethod
-    def enabled(enabled: bool):
+    def enabled(enabled: bool) -> None:
         """Sets the link enabled or disabled, based on the given value."""
+
     @staticmethod
-    def shoot(x: int, y: int, enabled: bool = True):
+    def shoot(x: int, y: int, enabled: bool = True) -> None:
         """Sets the link to shoot or not, and if shooting, the position."""
+
     @staticmethod
-    def ceasefire():
+    def ceasefire() -> None:
         """Shorthand to stop firing."""
+
     @staticmethod
-    def color():
+    def color() -> None:
         """Control color of an illuminator"""
+
     @staticmethod
-    def config(config: Content = None):
+    def config(config: Content) -> None:
         """Configure this block. config = eg Env.titanium for sorter1"""
 
-class Building(ABC, Senseable, Controllable):
-    pass
 
-class UnitType(ABC, Senseable, Controllable):
-    pass
+class Building(Senseable, Controllable):
+    """
+    Class representing a building
+    """
+
+
+class UnitType(Senseable, Controllable):
+    """
+    Class representing Unit
+    """
+
 
 class Screen:
     """
@@ -445,16 +484,19 @@ class Screen:
     """
 
     @staticmethod
-    def clear(r: int, g: int, b: int):
+    def clear(r: int, g: int, b: int) -> None:
         """Clear the entire display buffer to the given RGB values."""
+
     @staticmethod
-    def color(r: int, g: int, b: int, a: int = 255):
+    def color(r: int, g: int, b: int, a: int = 255) -> None:
         """Set the current brush color to the given RGBA values."""
+
     @staticmethod
-    def stroke(width: int):
+    def stroke(width: int) -> None:
         """Set the current brush stroke width to the given value."""
+
     @staticmethod
-    def line(x0: int, y0: int, x1: int, y1: int):
+    def line(x0: int, y0: int, x1: int, y1: int) -> None:
         """
         Draw a line from `(x0, y0)` towards `(x1, y1)`.
 
@@ -462,18 +504,21 @@ class Screen:
 
         You may use it to make rotated rectangles by setting a big enough stroke.
         """
+
     @staticmethod
-    def rect(x: int, y: int, width: int, height: int):
+    def rect(x: int, y: int, width: int, height: int) -> None:
         """
         Draw a filled rectangle with its bottom-left corner at `(x, y)` and size `(width, height)`.
         """
+
     @staticmethod
-    def hollow_rect(x: int, y: int, width: int, height: int):
+    def hollow_rect(x: int, y: int, width: int, height: int) -> None:
         """
         Like `rect`, but hollow. This border width considers the `stroke`.
         """
+
     @staticmethod
-    def poly(x: int, y: int, radius: int, sides: int, rotation: int = 0):
+    def poly(x: int, y: int, radius: int, sides: int, rotation: int = 0) -> None:
         """
         Draw a polygon centered at `(x, y)` with the specified `radius` and `sides`.
 
@@ -481,24 +526,29 @@ class Screen:
 
         The rotation is optional and specified in degrees.
         """
+
     @staticmethod
-    def hollow_poly(x: int, y: int, radius: int, sides: int, rotation: int = 0):
+    def hollow_poly(x: int, y: int, radius: int, sides: int, rotation: int = 0) -> None:
         """
         Like `poly`, but hollow. This border width considers the `stroke`.
         """
+
     @staticmethod
-    def triangle(x0: int, y0: int, x1: int, y1: int, x2: int, y2: int):
+    def triangle(x0: int, y0: int, x1: int, y1: int, x2: int, y2: int) -> None:
         """
         Draw a triangle with corners at `(x0, y0)`, `(x1, y1)` and `(x2, y2)`.
         """
+
     @staticmethod
-    def image(x: int, y: int, image: Content, size: int, rotation: int = 0):
+    def image(x: int, y: int, image: Content, size: int, rotation: int = 0) -> None:
         """
         Draw the image resource centered at `(x, y)` with `size` and optional `rotation`.
         """
+
     @staticmethod
-    def flush(display: str = None):
+    def flush(display: str | None = None) -> None:
         """Flush the screen buffer to the display."""
+
 
 class Unit(Senseable):
     """
@@ -510,7 +560,7 @@ class Unit(Senseable):
     """
 
     @staticmethod
-    def bind(unit: str):
+    def bind(unit: str) -> None:
         """
         Bind to the next unit of the given type.
 
@@ -522,109 +572,128 @@ class Unit(Senseable):
         * Naval: risso, minke, bryde, sei, omura, retusa, oxynoe, cyerce, aegires, navanax.
         * Player: alpha, beta, gamma.
         """
+
     @staticmethod
-    def idle():
+    def idle() -> None:
         """
         Command the bound unit to remain idle.
         """
+
     @staticmethod
-    def stop():
+    def stop() -> None:
         """
         Command the bound unit to stop.
         """
+
     @staticmethod
-    def move(x: int, y: int):
+    def move(x: int, y: int) -> None:
         """
         Command the bound unit to move to the given coordinates.
         """
+
     @staticmethod
-    def approach(x: int, y: int, radius: int):
+    def approach(x: int, y: int, radius: int) -> None:
         """
         Command the bound unit to approach the given coordinates, around a desired radius.
         """
+
     @staticmethod
     def within(x: int, y: int, radius: int) -> bool:
         """
         Return true if the bound unit is within the radius around the specified coordinates.
         """
+
     @staticmethod
-    def boost(enabled: bool):
+    def boost(enabled: bool) -> None:
         """
         Enable or disable the boost of the bound unit. The amount of boost is either 0 to disable or 1 to enable.
         """
+
     @staticmethod
-    def pathfind(x: int, y: int):
+    def pathfind(x: int, y: int) -> None:
         """
         Command the bound unit to pathfind to the x and y coordinates.
         """
+
     @staticmethod
-    def shoot(x: int = None, y: int = None):  # target
+    def shoot(x: int | None = None, y: int | None = None) -> None:  # target
         """
         Command the unit to shoot to the specified coordinates. Won't do anything if the coordinates are out of reach.
 
         If no coordinates are given, the unit will shoot at its feet (useful for units such as horizon which drop bombs).
         Note that horizon must be in movement for it to shoot.
         """
+
     @staticmethod
-    def target(x: int = None, y: int = None, shoot: bool = False):  # target
+    def target(x: int | None = None, y: int | None = None, shoot: bool = False) -> None:  # target
         """
         Command the unit to target (rotate to) the specified coordinates.
         If shoot is set to `True`, it will behave same as `shoot(x, y)`.
         """
+
     @staticmethod
-    def target_unit(unit, shoot: bool = True):  # targetp
+    def target_unit(unit: Unit, shoot: bool = True) -> None:  # targetp
         """
         Command the unit to target another unit with velocity prediction.
         If shoot is set to `True`, the bound unit will shoot as well.
         """
+
     @staticmethod
-    def ceasefire():  # target
+    def ceasefire() -> None:  # target
         """
         Command the unit to stop firing immediately.
         """
+
     @staticmethod
-    def fetch(container, item, amount=1):  # itemTake
+    def fetch(container: Building, item: str, amount: int = 1) -> None:  # itemTake
         """
         Command the unit to fetch (take out) an item from the specified container.
         """
+
     @staticmethod
-    def store(container, amount=1):  # itemDrop
+    def store(container: Building, amount: int = 1) -> None:  # itemDrop
         """
         Command the unit to store (put) an item into the specified container.
         """
+
     @staticmethod
-    def lift():  # payTake with takeUnits 0
+    def lift() -> None:  # payTake with takeUnits 0
         """
         Command the unit to lift a block.
         """
+
     @staticmethod
-    def carry():  # payTake with takeUnits 1
+    def carry() -> None:  # payTake with takeUnits 1
         """
         Command the unit to lift a unit (or block if there is no unit).
         """
+
     @staticmethod
-    def drop():  # payDrop
+    def drop() -> None:  # payDrop
         """
         Command the unit to drop the currently-held payload (a block or unit).
         """
+
     @staticmethod
-    def mine(x, y):
+    def mine(x: int, y: int) -> None:
         """
         Command the unit to mine at the specified coordinates.
         """
+
     @property
     def flag(self) -> int:
         """
         Store a user-provided number in the unit for later use (for example, to "flag" this unit already was used).
         """
+
     @staticmethod
     def locate(
         team: str,
         *,
-        building: Content = None,
-        ore: Content = None,
-        spawn: bool = None,
-        damaged: bool = None,
+        building: Content | None = None,
+        ore: Content | None = None,
+        spawn: bool | None = None,
+        damaged: bool | None = None,
     ) -> tuple[bool, int, int, Building | None]:
         """
         Locate an `'ally'` or '`enemy`' structure near the bound unit.
@@ -644,8 +713,9 @@ class Unit(Senseable):
         Ore can be one of those in `Env` or in a variable.
         Both spawn and damaged can only be set to `True`.
         """
+
     @staticmethod
-    def build(x: int, y: int, block_type: Content, rotation=0, config=0):  # build
+    def build(x: int, y: int, block_type: Content, rotation: int = 0, config: Content | int = 0) -> None:  # build
         """
         Build a block at position `(x, y)` with rotation (0, 1, 2 or 3, the values indicating the number of 90º counter-clockwise steps).
         For example, conveyors start facing east with a rotation of 0, north with 1, west with 2, and south with 3.
@@ -654,8 +724,9 @@ class Unit(Senseable):
         Config is configuration for block (e.g. Env.titanium for Env.sorter).
         You can pass another block variable as config to copy the configuration of that block.
         """
+
     @staticmethod
-    def get_block(x, y) -> Building:  # getBlock
+    def get_block(x: int, y: int) -> Building:  # getBlock
         """
         Return the building and optionally its type located at `(x, y)`:
 
@@ -664,16 +735,17 @@ class Unit(Senseable):
 
         The building type can then be used as the `block_type` in `build()` and building may be used as the `config`.
         """
+
     @staticmethod
-    def unbind():
+    def unbind() -> None:
         """
         Unbinds the currently bound unit
         """
+
     @staticmethod
-    def radar(*args, order=max, key="distance") -> UnitType | None:
+    def radar(*args: str, order: str = "max", key: str = "distance") -> UnitType | None:
         """Locate units around the currently bound unit"""
 
-Unit = Unit()
 
 class Mem:
     """
@@ -682,7 +754,8 @@ class Mem:
     Note that `cell1` is used for function calls (but is unused otherwise).
     """
 
-def print(message: str, flush: bool | str = True, time: float = 0.0):
+
+def print(message: str, flush: bool | str = True, time: float = 0.0) -> None:
     """
     Print a message. f-strings are supported and encouraged to do string formatting.
 
@@ -703,63 +776,83 @@ def print(message: str, flush: bool | str = True, time: float = 0.0):
         Changes the "mission" from Wave 1... waiting (etc) to the print buffer
     """
 
-def sleep(secs: float):
+
+def sleep(secs: float) -> None:
     """
     Sleep for the given amount of seconds.
     """
 
+
 T = TypeVar("T")
+
 
 def inline(func: Callable[..., T]) -> Callable[..., T]:
     """Compile the function by copy/pasting the code into each function call"""
 
+
 def flip(a: int) -> int:
     """Bitwise complement"""
+
 
 def max(a: float, b: float) -> float:
     """Maximum of 2 numbers"""
 
+
 def min(a: float, b: float) -> float:
     """Minimum of 2 numbers"""
+
 
 def xor(a: int, b: int) -> int:
     """Bitwise XOR"""
 
+
 def atan2(a: float, b: float) -> float:
     """Arc tangent, in degrees"""
+
 
 def noise(a: float, b: float) -> float:
     """2D simplex noise"""
 
+
 def abs(a: float) -> float:
     """Absolute Value"""
 
-def len(a) -> float:
+
+def len(a: float) -> float:
     """The magnitude of a vector"""
+
 
 def log(a: float) -> float:
     """Natural Logarithm"""
 
+
 def log10(a: float) -> float:
     """Base 10 logarithm"""
+
 
 def sin(a: float) -> float:
     """Sine, in degrees"""
 
+
 def cos(a: float) -> float:
     """Cosine, in degrees"""
+
 
 def tan(a: float) -> float:
     """Tangent, in degrees"""
 
+
 def floor(a: float) -> float:
     """Round down"""
+
 
 def ceil(a: float) -> float:
     """Round up"""
 
+
 def sqrt(a: float) -> float:
     """Square root"""
+
 
 def rand(range: float) -> float:
     """Random decimal in range [0, range)"""

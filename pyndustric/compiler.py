@@ -347,8 +347,8 @@ class Compiler(ast.NodeVisitor):
 
         try:
             order = RADAR_ORDERS[order]
-        except KeyError:
-            raise CompilerError(ERR_UNSUPPORTED_EXPR, value)
+        except KeyError as e:
+            raise CompilerError(ERR_UNSUPPORTED_EXPR, value) from e
 
         self.ins_append(f"{radar} {criteria} {key} {obj} {order} {variable}")
         return variable
