@@ -632,7 +632,7 @@ class Unit(Senseable):
         """
 
     @staticmethod
-    def target_unit(unit: Unit, shoot: bool = True) -> None:  # targetp
+    def target_unit(unit: "Unit", shoot: bool = True) -> None:  # targetp
         """
         Command the unit to target another unit with velocity prediction.
         If shoot is set to `True`, the bound unit will shoot as well.

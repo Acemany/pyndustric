@@ -1424,6 +1424,9 @@ class Compiler(ast.NodeVisitor):
                 lineno += 1
 
         if lineno > MAX_INSTRUCTIONS:
+            self._ins: list[_Instruction] = [_Instruction(f"set {REG_STACK} 0")]
+            self._functions: dict[str, Function] = {}
+            self._tmp_var_counter = 0
             raise CompilerError(ERR_TOO_LONG, ast.Module(lineno=0, col_offset=0))
 
         # Final output is all instructions ignoring labels
